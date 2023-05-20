@@ -1,7 +1,5 @@
 from django.contrib import admin
-from .models import Image, List, ListElement
+from .models import Image
 
 # Register your models here.
 admin.site.register(Image)
-admin.site.register(List)
-admin.site.register(ListElement)
