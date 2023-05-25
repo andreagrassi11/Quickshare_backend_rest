@@ -1,8 +1,12 @@
 from django.urls import path, include
 from .views import (
-    ImageView
+    ImageView,
+    ListViewGet,
+    ListViewPost
 )
 
 urlpatterns = [
-    path('api', ImageView.as_view()),
+    path('image', ImageView.as_view()),
+    path('list/?<int:list_id>', ListViewGet.as_view()),
+    path('list', ListViewPost.as_view()),
 ]
