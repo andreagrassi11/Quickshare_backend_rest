@@ -238,9 +238,9 @@ class CalendarView(APIView):
     # Modify note and people allowed
     def put(self, request, user_id, *args, **kwargs):
         ''' Updates the note '''
-        note_instance = Note.objects.get(Q(note_id = request.data.get('note_id')) & Q(allowed = user_id))
+        calendar_instance = Calendar.objects.get(Q(calendar_id = request.data.get('calendar_id')) & Q(allowed = user_id))
 
-        if not note_instance:
+        if not calendar_instance:
             return Response(
                 {"res": "Object with image id does not exists"}, 
                 status=status.HTTP_400_BAD_REQUEST
@@ -264,7 +264,7 @@ class CalendarView(APIView):
             'allowed': allowed
         }
         
-        serializer = NotePostSerializer(instance = note_instance, data = data, partial = True)
+        serializer = NotePostSerializer(instance = calendar_instance, data = data, partial = True)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
@@ -274,15 +274,15 @@ class CalendarView(APIView):
     # Delete
     def delete(self, request, user_id, *args, **kwargs):
         ''' Deletes the note '''
-        note_to_delete = Calendar.objects.get(Q(note_id = request.data.get('note_id')) & Q(allowed = user_id))
+        calendar_to_delete = Calendar.objects.get(Q(calendar_id = request.data.get('calendar_id')) & Q(allowed = user_id))
 
-        if not note_to_delete:
+        if not calendar_to_delete:
             return Response(
                 {"res": "Object with todo id does not exists"}, 
                 status=status.HTTP_400_BAD_REQUEST
             )
         
-        note_to_delete.delete()
+        calendar_to_delete.delete()
 
         return Response(
             {"res": "Object deleted!"},
