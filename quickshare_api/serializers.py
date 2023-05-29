@@ -1,17 +1,151 @@
 from rest_framework import serializers
-from .models import Image, List, ListElement
+from .models import *
+from django.contrib.auth.models import User
+from rest_framework.permissions import IsAuthenticated
+from django.db import models
+from django.contrib.auth import authenticate
+from django.contrib.auth.hashers import make_password
 
-class QuickshareSerializer(serializers.ModelSerializer):
+# Register serializer
+class RegisterSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('id','first_name', 'last_name','email','username','password',)
+        extra_kwargs = {
+            'password':{'write_only': True},
+        }
+
+    def create(self, validated_data):
+        user = User.objects.create_user(
+            validated_data['username'], 
+            password = validated_data['password'],  
+            first_name = validated_data['first_name'],  
+            last_name = validated_data['last_name'],
+            email = validated_data['email']
+        )
+        return user
+
+# User serializer
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = '__all__'
+
+# Image serializer
+class ImagePostSerializer(serializers.ModelSerializer):
+    
+    allowed = serializers.PrimaryKeyRelatedField(
+        many=True, 
+        queryset= User.objects.all()
+    )
+     
     class Meta:
         model = Image
-        fields = ["image_id","image_name","upload_data"]
+        fields = ['image_id','image_name','upload_data', 'allowed']
 
-class QuickshareSerializer(serializers.ModelSerializer):
+    def create(self, validated_data):
+        related_models_data = validated_data.pop('allowed')
+        image = Image.objects.create(**validated_data)
+        image.allowed.set(related_models_data)
+        image.save()
+        return image
+
+    def update(self, instance, validated_data):
+        user_id = validated_data.pop('allowed')
+        related_models = instance.allowed.all()
+        related_models = list(related_models)
+        related_models.extend(user_id)
+        instance.allowed.set(related_models)
+        instance.save()
+        return instance
+    
+class ImageGetSerializer(serializers.ModelSerializer):
+
     class Meta:
-        model = List
-        fields = ["list_id","title","descrizione","create_data"]
+        model = Image
+        fields = '__all__'
 
-# class QuickshareSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = ListElement
-#         fields = ["list_element_id","description","do"]
+# Note serializer
+class NotePostSerializer(serializers.ModelSerializer):
+    
+    allowed = serializers.PrimaryKeyRelatedField(
+        many=True, 
+        queryset= User.objects.all()
+    )
+     
+    class Meta:
+        model = Note
+        fields = '__all__'
+
+    def create(self, validated_data):
+        related_models_data = validated_data.pop('allowed')
+        note = Note.objects.create(**validated_data)
+        note.allowed.set(related_models_data)
+        note.save()
+        return note
+
+    def update(self, instance, validated_data):
+        user_id = validated_data.pop('allowed')
+        related_models = instance.allowed.all()
+        related_models = list(related_models)
+        related_models.extend(user_id)
+        instance.allowed.set(related_models)
+        instance.title = validated_data.get('title')
+        instance.body = validated_data.get('body')
+        instance.save()
+        return instance
+    
+class NoteGetSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Note
+        fields = '__all__'
+
+# Calendar serializer
+class CalendarPostSerializer(serializers.ModelSerializer):
+    
+    allowed = serializers.PrimaryKeyRelatedField(
+        many=True, 
+        queryset= User.objects.all()
+    )
+     
+    class Meta:
+        model = Calendar
+        fields = '__all__'
+
+    def create(self, validated_data):
+        related_models_data = validated_data.pop('allowed')
+        note = Calendar.objects.create(**validated_data)
+        note.allowed.set(related_models_data)
+        note.save()
+        return note
+
+    def update(self, instance, validated_data):
+        user_id = validated_data.pop('allowed')
+        related_models = instance.allowed.all()
+        related_models = list(related_models)
+        related_models.extend(user_id)
+        instance.allowed.set(related_models)
+        instance.title = validated_data.get('title')
+        instance.body = validated_data.get('body')
+        instance.save()
+        return instance
+    
+class CalendarGetSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Calendar
+        fields = '__all__'
+
+
+
+
+
+
+
+# calendar_id = models.IntegerField(primary_key = True)
+# title = models.CharField(max_length = 100)
+# description  = models.TextField()
+# start_event = models.DateTimeField()
+# finish_event = models.DateTimeField()
+# allowed = models.ManyToManyField(User)

@@ -1,12 +1,14 @@
 from django.urls import path, include
-from .views import (
-    ImageView,
-    ListViewGet,
-    ListViewPost
-)
+from rest_framework_simplejwt import views as jwt_views
+from .views import *
 
 urlpatterns = [
-    path('image', ImageView.as_view()),
-    path('list/?<int:list_id>', ListViewGet.as_view()),
-    path('list', ListViewPost.as_view()),
+    # User Api
+    path('register', RegisterApi.as_view()),
+    path('api/token/', jwt_views.TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/token/refresh/', jwt_views.TokenRefreshView.as_view(), name='token_refresh'),
+    # Image API
+    path('image/<user_id>', UserImageView.as_view()),
+    # Note API
+    path('note/<user_id>', NoteView.as_view()),
 ]
