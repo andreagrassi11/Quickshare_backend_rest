@@ -8,10 +8,12 @@ import datetime
 from django.db.models import Q
 from rest_framework import generics, permissions, mixins
 from django.contrib.auth.models import User
+from rest_framework.permissions import AllowAny
 
 
 # User API
 class RegisterApi(generics.GenericAPIView):
+    permission_classes = [AllowAny]
     serializer_class = RegisterSerializer
 
     def post(self, request, *args,  **kwargs):

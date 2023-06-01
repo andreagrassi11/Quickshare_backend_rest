@@ -17,7 +17,7 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         user = User.objects.create_user(
-            validated_data['username'], 
+            username = validated_data['username'],
             password = validated_data['password'],  
             first_name = validated_data['first_name'],  
             last_name = validated_data['last_name'],
@@ -136,16 +136,3 @@ class CalendarGetSerializer(serializers.ModelSerializer):
     class Meta:
         model = Calendar
         fields = '__all__'
-
-
-
-
-
-
-
-# calendar_id = models.IntegerField(primary_key = True)
-# title = models.CharField(max_length = 100)
-# description  = models.TextField()
-# start_event = models.DateTimeField()
-# finish_event = models.DateTimeField()
-# allowed = models.ManyToManyField(User)
