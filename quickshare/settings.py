@@ -15,6 +15,38 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+# Allow origin request
+CORS_ALLOW_ALL_ORIGIN = False
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000"
+]
+
+ALLOWED_HOSTS = [
+    "127.0.0.1",
+    "localhost"
+]
+
+CORS_ORIGIN_WHITELIST = [
+    'http://localhost:3000',
+]
+
+CORS_ALLOW_METHODS = (
+    "DELETE",
+    "GET",
+    "OPTIONS",
+    "PATCH",
+    "POST",
+    "PUT",
+)
+
+CORS_ALLOWED_HEADERS = [
+    'Accept',
+    'Authorization',
+    'Content-Type',
+]
+
+CORS_ALLOW_CREDENTIAL = False
 
 # Application definition
 
@@ -114,17 +146,6 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-# Allow origin request
-CORS_ORIGIN_ALLOW_ALL = True
-
-ALLOWED_HOSTS = [
-    "127.0.0.1",
-    "localhost",
-]
-
-CORS_ALLOW_CREDENTIAL = False
-
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': (

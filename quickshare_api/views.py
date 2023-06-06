@@ -8,7 +8,7 @@ import datetime
 from django.db.models import Q
 from rest_framework import generics, permissions, mixins
 from django.contrib.auth.models import User
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 
 
 # User API
@@ -29,7 +29,7 @@ class RegisterApi(generics.GenericAPIView):
 # Image API    
 class UserImageView(APIView):
     # add permission to check if user is authenticated
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = (IsAuthenticated, )
 
     # Take all image for user
     def get(self, request, user_id, *args, **kwargs):
@@ -97,11 +97,19 @@ class UserImageView(APIView):
     # Delete
     def delete(self, request, user_id, *args, **kwargs):
         ''' Deletes the image '''
-        image_to_delete = Image.objects.get(Q(image_id = request.data.get('image_id')) & Q(allowed = user_id))
-
+        try:
+            print("caieweipgjiprwgjipj ",request.data)
+            image_to_delete = Image.objects.get(Q(image_id = request.data.get("image_id")) & Q(allowed = user_id))
+            print(image_to_delete)
+        except Image.DoesNotExist:
+            return Response(
+                {"res": "Object with iamges id does not exists"}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
         if not image_to_delete:
             return Response(
-                {"res": "Object with todo id does not exists"}, 
+                {"res": "Object with iamges id does not exists"}, 
                 status=status.HTTP_400_BAD_REQUEST
             )
         
@@ -111,6 +119,9 @@ class UserImageView(APIView):
             {"res": "Object deleted!"},
             status=status.HTTP_200_OK
         )
+    
+    # Remove share user
+    # def patch(self, request, user_id, *args, **kwargs):
 
 # Note API
 class NoteView(APIView):
