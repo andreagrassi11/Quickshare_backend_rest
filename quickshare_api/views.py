@@ -44,9 +44,9 @@ class UserInfoByEmail(APIView):
     permission_classes = (IsAuthenticated, )
 
     # Take all user information
-    def get(self, request, *args, **kwargs):
+    def get(self, request, email, *args, **kwargs):
         ''' List all the image for given requested user '''
-        users = User.objects.all().filter(email = request.data.get("email"))
+        users = User.objects.all().filter(email = email)
         serializer = UserGetSerializer(users, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -88,6 +88,8 @@ class UserImageView(APIView):
     # Modify "allowed" people for image
     def put(self, request, user_id, *args, **kwargs):
         ''' Updates the image '''
+        print("image_id ", request.data.get('image_id'))
+        print("new_user_id ", request.data.get('new_user_id'))
         image_instance = Image.objects.get(Q(image_id = request.data.get('image_id')) & Q(allowed = user_id))
 
         if not image_instance:
