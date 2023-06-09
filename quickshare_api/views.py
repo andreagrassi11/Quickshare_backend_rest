@@ -8,6 +8,7 @@ import datetime
 from django.db.models import Q
 from rest_framework import generics, permissions, mixins
 from django.contrib.auth.models import User
+from rest_framework.request import Request
 from rest_framework.permissions import AllowAny, IsAuthenticated
 
 
@@ -15,6 +16,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 class RegisterApi(generics.GenericAPIView):
     permission_classes = [AllowAny]
     serializer_class = RegisterSerializer
+    
 
     def post(self, request, *args,  **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -25,6 +27,29 @@ class RegisterApi(generics.GenericAPIView):
             "user": UserSerializer(user, context=self.get_serializer_context()).data,
             "message": "User Created Successfully.  Now perform Login to get your token",
         })
+
+class UserInfo(APIView):
+    # add permission to check if user is authenticated
+    permission_classes = (IsAuthenticated, )
+
+    # Take all user information
+    def get(self, request, user_id, *args, **kwargs):
+        ''' List all the image for given requested user '''
+        users = User.objects.all().filter(id = user_id)
+        serializer = UserGetSerializer(users, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+class UserInfoByEmail(APIView):
+    # add permission to check if user is authenticated
+    permission_classes = (IsAuthenticated, )
+
+    # Take all user information
+    def get(self, request, *args, **kwargs):
+        ''' List all the image for given requested user '''
+        users = User.objects.all().filter(email = request.data.get("email"))
+        serializer = UserGetSerializer(users, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
 
 # Image API    
 class UserImageView(APIView):
@@ -97,16 +122,8 @@ class UserImageView(APIView):
     # Delete
     def delete(self, request, user_id, *args, **kwargs):
         ''' Deletes the image '''
-        try:
-            print("caieweipgjiprwgjipj ",request.data)
-            image_to_delete = Image.objects.get(Q(image_id = request.data.get("image_id")) & Q(allowed = user_id))
-            print(image_to_delete)
-        except Image.DoesNotExist:
-            return Response(
-                {"res": "Object with iamges id does not exists"}, 
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        
+        image_to_delete = Image.objects.get(Q(image_id = request.data.get('image_id')) & Q(allowed = user_id))
+         
         if not image_to_delete:
             return Response(
                 {"res": "Object with iamges id does not exists"}, 
