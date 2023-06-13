@@ -50,7 +50,6 @@ class UserInfoByEmail(APIView):
         serializer = UserGetSerializer(users, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-
 # Image API    
 class UserImageView(APIView):
     # add permission to check if user is authenticated
@@ -68,11 +67,8 @@ class UserImageView(APIView):
     def post(self, request, user_id, *args, **kwargs):
         ''' Create the Image '''
         # set Id for image
-        count_image = Image.objects.count()
-        count_image += 1
 
         data = {
-            'image_id': count_image,
             'image_name': request.data.get('image_name'),  
             'upload_data': datetime.date.today(),
             'allowed': list(user_id)
@@ -145,7 +141,7 @@ class UserImageView(APIView):
 # Note API
 class NoteView(APIView):
     # add permission to check if user is authenticated
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = (IsAuthenticated, )
 
     # Take all image for user
     def get(self, request, user_id, *args, **kwargs):
@@ -158,12 +154,7 @@ class NoteView(APIView):
     # Insert a new note
     def post(self, request, user_id, *args, **kwargs):
         ''' Create the note '''
-        # set Id for image
-        count_note = Note.objects.count()
-        count_note += 1
-
         data = {
-            'note_id': count_note,
             'title': request.data.get('title'),  
             'body': request.data.get('body'),  
             'create_date': datetime.date.today(),
@@ -216,11 +207,11 @@ class NoteView(APIView):
     # Delete
     def delete(self, request, user_id, *args, **kwargs):
         ''' Deletes the note '''
+        print(request.data.get('note_id'))
         note_to_delete = Note.objects.get(Q(note_id = request.data.get('note_id')) & Q(allowed = user_id))
 
         if not note_to_delete:
             return Response(
-                {"res": "Object with todo id does not exists"}, 
                 status=status.HTTP_400_BAD_REQUEST
             )
         
