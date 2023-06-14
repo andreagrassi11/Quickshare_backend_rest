@@ -146,7 +146,7 @@ class NoteView(APIView):
     # Take all image for user
     def get(self, request, user_id, *args, **kwargs):
         ''' List all the note for given requested user '''
-        notes = Note.objects.all().filter(allowed = user_id)
+        notes = Note.objects.all().filter(allowed = user_id).order_by('-create_date')
         serializer = NoteGetSerializer(notes, many=True)
 
         return Response(serializer.data, status=status.HTTP_200_OK)
