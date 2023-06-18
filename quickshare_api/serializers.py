@@ -107,6 +107,53 @@ class NoteGetSerializer(serializers.ModelSerializer):
         model = Note
         fields = '__all__'
 
+# List serializer
+class ListPostSerializer(serializers.ModelSerializer):
+    
+    allowed = serializers.PrimaryKeyRelatedField(
+        many=True, 
+        queryset= User.objects.all()
+    )
+     
+    class Meta:
+        model = List
+        fields = '__all__'
+
+    def create(self, validated_data):
+        related_models_data = validated_data.pop('allowed')
+        list = List.objects.create(**validated_data)
+        list.allowed.set(related_models_data)
+        list.save()
+        return list
+
+    def update(self, instance, validated_data):
+        user_id = validated_data.pop('allowed')
+        related_models = instance.allowed.all()
+        related_models = list(related_models)
+        related_models.extend(user_id)
+        instance.allowed.set(related_models)
+        instance.title = validated_data.get('title')
+        instance.save()
+        return instance
+    
+class ListGetSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = List
+        fields = '__all__'
+
+class ListElementPostSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = ListElement
+        fields = '__all__'
+    
+class ListElementGetSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = ListElement
+        fields = '__all__'
+
 # Calendar serializer
 class CalendarPostSerializer(serializers.ModelSerializer):
     

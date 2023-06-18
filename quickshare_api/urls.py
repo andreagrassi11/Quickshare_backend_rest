@@ -13,4 +13,7 @@ urlpatterns = [
     path('image/<user_id>', UserImageView.as_view()),
     # Note API
     path('note/<user_id>', NoteView.as_view()),
+    # List API
+    path('list/<user_id>', ListView.as_view()),
+    path('list/element/<list_id>', ListElementView.as_view()),
 ]

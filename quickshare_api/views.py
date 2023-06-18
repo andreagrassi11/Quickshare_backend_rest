@@ -311,3 +311,154 @@ class CalendarView(APIView):
             {"res": "Object deleted!"},
             status=status.HTTP_200_OK
         )
+
+# List API
+class ListView(APIView):
+    # add permission to check if user is authenticated
+    permission_classes = (IsAuthenticated, )
+
+    # Take all lists for user
+    def get(self, request, user_id, *args, **kwargs):
+        ''' List all the list for given requested user '''
+        lists = List.objects.all().filter(allowed = user_id).order_by('-create_date')
+        serializer = ListGetSerializer(lists, many=True)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    # Insert a new list
+    def post(self, request, user_id, *args, **kwargs):
+        ''' Create the list '''
+        data = {
+            'title': request.data.get('title'),  
+            'create_date': datetime.date.today(),
+            'allowed': list(user_id)
+        }
+        
+        serializer = ListPostSerializer(data = data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    # Modify list and people allowed
+    def put(self, request, user_id, *args, **kwargs):
+        ''' Updates the note '''
+        list_instance = List.objects.get(Q(list_id = request.data.get('list_id')) & Q(allowed = user_id))
+
+        if not list_instance:
+            return Response(
+                {"res": "Object with image id does not exists"}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # check for the type
+        new_user_id = request.data.get('new_user_id')
+        allowed = []
+
+        if isinstance(new_user_id, int):
+            allowed.append(new_user_id)
+        elif isinstance(new_user_id, str):
+            allowed = list(new_user_id)
+        elif isinstance(new_user_id, list):
+            allowed = new_user_id
+        
+        data = {
+            'title': request.data.get('title'),
+            'allowed': allowed
+        }
+        
+        serializer = ListPostSerializer(instance = list_instance, data = data, partial = True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    # Delete list
+    def delete(self, request, user_id, *args, **kwargs):
+        ''' Deletes the note '''
+        note_to_delete = List.objects.get(Q(list_id = request.data.get('list_id')) & Q(allowed = user_id))
+
+        if not note_to_delete:
+            return Response(
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        note_to_delete.delete()
+
+        return Response(
+            {"res": "Object deleted!"},
+            status=status.HTTP_200_OK
+        )
+
+class ListElementView(APIView):
+    # add permission to check if user is authenticated
+    permission_classes = (IsAuthenticated, )
+
+    # Take all list element for list
+    def get(self, request, list_id, *args, **kwargs):
+
+        list_element = ListElement.objects.all().filter(fk_list = list_id).order_by('-create_date')
+        serializer = ListElementGetSerializer(list_element, many=True)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    # Insert a new list element
+    def post(self, request, list_id, *args, **kwargs):
+        
+        data = {
+            'description': request.data.get('description'), 
+            'do': False,
+            'create_date': datetime.date.today(),
+            'fk_list': list_id
+        }
+        
+        serializer = ListElementPostSerializer(data = data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    # Modify list element
+    def put(self, request, list_id, *args, **kwargs):
+        
+        lis_element_instance = ListElement.objects.filter(fk_list = list_id)
+
+        if not lis_element_instance:
+            return Response(
+                {"res": "Object with image id does not exists"}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        data = {
+            'description': request.data.get('title'), 
+            'do': request.data.get('do'),
+            'fk_list': list_id
+        }
+        
+        serializer = ListElementPostSerializer(instance = lis_element_instance, data = data, partial = True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    # Delete
+    def delete(self, request, list_id, *args, **kwargs):
+        
+        print(request.data.get('note_id'))
+        note_to_delete = Note.objects.get(Q(note_id = request.data.get('note_id')) & Q(allowed = user_id))
+
+        if not note_to_delete:
+            return Response(
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        note_to_delete.delete()
+
+        return Response(
+            {"res": "Object deleted!"},
+            status=status.HTTP_200_OK
+        )

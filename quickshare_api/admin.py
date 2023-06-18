@@ -4,3 +4,5 @@ from .models import *
 # Register your models here.
 admin.site.register(Image)
 admin.site.register(Note)
+admin.site.register(List)
+admin.site.register(ListElement)

@@ -25,19 +25,19 @@ class Calendar(models.Model):
     finish_event = models.DateTimeField()
     allowed = models.ManyToManyField(User)
     
-# # List
-# class List(models.Model):  
-#     list_id = models.AutoField(primary_key=True)
-#     title = models.CharField(max_length=50)
-#     descrizione = models.CharField(max_length=150)
-#     create_data = models.DateField()
-#     fk_user = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True)
+# List
+class List(models.Model):  
+    list_id = models.AutoField(primary_key=True)
+    title = models.CharField(max_length=50)
+    create_date = models.DateField()
+    allowed = models.ManyToManyField(User)
 
-# class ListElement(models.Model):  
-#     list_element_id = models.AutoField(primary_key=True)
-#     description = models.CharField(max_length=130)
-#     do =  models.BooleanField()
-#     fk_list = models.ForeignKey(List, on_delete=models.CASCADE, blank=True, null=True)
+class ListElement(models.Model):  
+    list_element_id = models.AutoField(primary_key=True)
+    description = models.CharField(max_length=130)
+    do =  models.BooleanField()
+    create_date = models.DateField()
+    fk_list = models.ForeignKey(List, on_delete=models.CASCADE, blank=True, null=True)
 
 
 # # Finances
