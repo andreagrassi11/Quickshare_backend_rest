@@ -141,17 +141,35 @@ class ListGetSerializer(serializers.ModelSerializer):
     class Meta:
         model = List
         fields = '__all__'
-
-class ListElementPostSerializer(serializers.ModelSerializer):
     
+class ListElementPutSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = ListElement
+        fields = ['do']
+
+    def update(self, instance, validated_data):
+        instance.do = validated_data.get('do')
+        instance.save()
+        return instance
+    
+class ListElementSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = ListElement
         fields = '__all__'
-    
-class ListElementGetSerializer(serializers.ModelSerializer):
+
+# Financial serializer
+class ExpenseSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = ListElement
+        model = Expenses
+        fields = '__all__'
+
+class IncomeSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Income
         fields = '__all__'
 
 # Calendar serializer

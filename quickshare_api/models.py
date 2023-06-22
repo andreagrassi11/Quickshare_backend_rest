@@ -40,29 +40,21 @@ class ListElement(models.Model):
     fk_list = models.ForeignKey(List, on_delete=models.CASCADE, blank=True, null=True)
 
 
-# # Finances
-# class FinancialTracker(models.Model):
-#     financial_id = models.AutoField(primary_key=True)
-#     create_date = models.DateField()
-#     income_sum = models.IntegerField()
-#     expenses_sum = models.IntegerField()
+# Finances
+class Expenses(models.Model):
+    expenses_id = models.AutoField(primary_key=True)
+    title = models.CharField(max_length = 100)
+    category = models.CharField(max_length = 100)
+    data = models.DateField()
+    amount = models.IntegerField()
+    method = models.CharField(max_length = 100)
+    fk_user = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True)
 
-# class Expenses(models.Model):
-#     expenses_id = models.AutoField(primary_key=True)
-#     name = models.CharField(max_length = 100)
-#     category = models.CharField(max_length = 100)
-#     data = models.DateField()
-#     amount = models.IntegerField()
-#     method = models.CharField(max_length = 100)
-#     comment = models.TextField()
-#     fk_financial = models.ForeignKey(FinancialTracker, on_delete=models.CASCADE, blank=True, null=True)
-
-# class Income(models.Model):
-#     income_id = models.AutoField(primary_key=True)
-#     name = models.CharField(max_length = 100)
-#     category = models.CharField(max_length = 100)
-#     data = models.DateField()
-#     amount = models.IntegerField()
-#     method = models.CharField(max_length = 100)
-#     comment = models.TextField()
-#     fk_financial = models.ForeignKey(FinancialTracker, on_delete=models.CASCADE, blank=True, null=True)
+class Income(models.Model):
+    income_id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length = 100)
+    category = models.CharField(max_length = 100)
+    data = models.DateField()
+    amount = models.IntegerField()
+    method = models.CharField(max_length = 100)
+    fk_user = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True)

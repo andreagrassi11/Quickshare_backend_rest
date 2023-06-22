@@ -207,7 +207,6 @@ class NoteView(APIView):
     # Delete
     def delete(self, request, user_id, *args, **kwargs):
         ''' Deletes the note '''
-        print(request.data.get('note_id'))
         note_to_delete = Note.objects.get(Q(note_id = request.data.get('note_id')) & Q(allowed = user_id))
 
         if not note_to_delete:
@@ -400,7 +399,7 @@ class ListElementView(APIView):
     def get(self, request, list_id, *args, **kwargs):
 
         list_element = ListElement.objects.all().filter(fk_list = list_id).order_by('-create_date')
-        serializer = ListElementGetSerializer(list_element, many=True)
+        serializer = ListElementSerializer(list_element, many=True)
 
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -414,7 +413,7 @@ class ListElementView(APIView):
             'fk_list': list_id
         }
         
-        serializer = ListElementPostSerializer(data = data)
+        serializer = ListElementSerializer(data = data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -424,21 +423,19 @@ class ListElementView(APIView):
     # Modify list element
     def put(self, request, list_id, *args, **kwargs):
         
-        lis_element_instance = ListElement.objects.filter(fk_list = list_id)
+        list_element_instance = ListElement.objects.filter(list_element_id = request.data.get('list_element_id')).first()
 
-        if not lis_element_instance:
+        if not list_element_instance:
             return Response(
                 {"res": "Object with image id does not exists"}, 
                 status=status.HTTP_400_BAD_REQUEST
             )
         
         data = {
-            'description': request.data.get('title'), 
-            'do': request.data.get('do'),
-            'fk_list': list_id
+            'do': request.data.get('do')
         }
         
-        serializer = ListElementPostSerializer(instance = lis_element_instance, data = data, partial = True)
+        serializer = ListElementPutSerializer(instance = list_element_instance, data = data, partial = True)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
@@ -448,15 +445,111 @@ class ListElementView(APIView):
     # Delete
     def delete(self, request, list_id, *args, **kwargs):
         
-        print(request.data.get('note_id'))
-        note_to_delete = Note.objects.get(Q(note_id = request.data.get('note_id')) & Q(allowed = user_id))
+        list_element_to_delete = ListElement.objects.filter(list_element_id = request.data.get('list_element_id')).first()
 
-        if not note_to_delete:
+        if not list_element_to_delete:
             return Response(
                 status=status.HTTP_400_BAD_REQUEST
             )
         
-        note_to_delete.delete()
+        list_element_to_delete.delete()
+
+        return Response(
+            {"res": "Object deleted!"},
+            status=status.HTTP_200_OK
+        )
+
+# Finances
+class ExpenseView(APIView):
+    # add permission to check if user is authenticated
+    permission_classes = (IsAuthenticated, )
+
+    # Take all expenses for user
+    def get(self, request, user_id, *args, **kwargs):
+        
+        lists = Expenses.objects.all().filter(fk_user = user_id).order_by('-create_date')
+        serializer = ExpenseSerializer(lists, many=True)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    # Insert a new list
+    def post(self, request, user_id, *args, **kwargs):
+        ''' Create the list '''
+        data = {
+            'title': request.data.get('title'), 
+            'category': request.data.get('category'), 
+            'data': request.data.get('data'), 
+            'amount': request.data.get('amount'), 
+            'method': request.data.get('method'), 
+            'fk_user': user_id, 
+        }
+        
+        serializer = ExpenseSerializer(data = data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    # Delete list
+    def delete(self, request, user_id, *args, **kwargs):
+        ''' Deletes the note '''
+        expenses_to_delete = Expenses.objects.all().filter(fk_user = user_id).first()
+
+        if not expenses_to_delete:
+            return Response(
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        expenses_to_delete.delete()
+
+        return Response(
+            {"res": "Object deleted!"},
+            status=status.HTTP_200_OK
+        )
+    
+class ExpenseView(APIView):
+    # add permission to check if user is authenticated
+    permission_classes = (IsAuthenticated, )
+
+    # Take all expenses for user
+    def get(self, request, user_id, *args, **kwargs):
+        
+        lists = Income.objects.all().filter(fk_user = user_id).order_by('-create_date')
+        serializer = IncomeSerializer(lists, many=True)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    # Insert a new list
+    def post(self, request, user_id, *args, **kwargs):
+        ''' Create the list '''
+        data = {
+            'title': request.data.get('title'), 
+            'category': request.data.get('category'), 
+            'data': request.data.get('data'), 
+            'amount': request.data.get('amount'), 
+            'method': request.data.get('method'), 
+            'fk_user': user_id, 
+        }
+        
+        serializer = IncomeSerializer(data = data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    # Delete list
+    def delete(self, request, user_id, *args, **kwargs):
+        ''' Deletes the note '''
+        income_to_delete = Income.objects.all().filter(fk_user = user_id).first()
+
+        if not income_to_delete:
+            return Response(
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        income_to_delete.delete()
 
         return Response(
             {"res": "Object deleted!"},
