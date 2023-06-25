@@ -16,3 +16,4 @@ python3 manage.py migrate
 # Run server
 python3 manage.py runserver
 
+pip install django-extra-fields

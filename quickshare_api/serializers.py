@@ -5,6 +5,8 @@ from rest_framework.permissions import IsAuthenticated
 from django.db import models
 from django.contrib.auth import authenticate
 from django.contrib.auth.hashers import make_password
+import base64
+from drf_extra_fields.fields import Base64ImageField
 
 # Register serializer
 class RegisterSerializer(serializers.ModelSerializer):
@@ -44,13 +46,14 @@ class ImagePostSerializer(serializers.ModelSerializer):
         many=True, 
         queryset= User.objects.all()
     )
-     
+
     class Meta:
         model = Image
-        fields = ['image_id','image_name','upload_data', 'allowed']
+        fields = ['image_id','data','upload_data', 'allowed']
 
     def create(self, validated_data):
         related_models_data = validated_data.pop('allowed')
+
         image = Image.objects.create(**validated_data)
         image.allowed.set(related_models_data)
         image.save()

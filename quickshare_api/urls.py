@@ -16,4 +16,7 @@ urlpatterns = [
     # List API
     path('list/<user_id>', ListView.as_view()),
     path('list/element/<list_id>', ListElementView.as_view()),
+    # Finance API
+    path('expense/<user_id>', ExpenseView.as_view()),
+    path('income/<user_id>', IncomeView.as_view()),
 ]

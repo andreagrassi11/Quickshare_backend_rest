@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 # Image
 class Image(models.Model):
     image_id = models.AutoField(primary_key=True)
-    image_name = models.CharField(max_length=180)
+    data = models.TextField(default='')
     upload_data = models.DateField()
     allowed = models.ManyToManyField(User)
 

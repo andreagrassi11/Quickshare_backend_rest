@@ -65,11 +65,9 @@ class UserImageView(APIView):
 
     # Insert a new image
     def post(self, request, user_id, *args, **kwargs):
-        ''' Create the Image '''
-        # set Id for image
 
         data = {
-            'image_name': request.data.get('image_name'),  
+            'data': request.data.get('data'),  
             'upload_data': datetime.date.today(),
             'allowed': list(user_id)
         }
@@ -84,8 +82,6 @@ class UserImageView(APIView):
     # Modify "allowed" people for image
     def put(self, request, user_id, *args, **kwargs):
         ''' Updates the image '''
-        print("image_id ", request.data.get('image_id'))
-        print("new_user_id ", request.data.get('new_user_id'))
         image_instance = Image.objects.get(Q(image_id = request.data.get('image_id')) & Q(allowed = user_id))
 
         if not image_instance:
@@ -467,7 +463,7 @@ class ExpenseView(APIView):
     # Take all expenses for user
     def get(self, request, user_id, *args, **kwargs):
         
-        lists = Expenses.objects.all().filter(fk_user = user_id).order_by('-create_date')
+        lists = Expenses.objects.all().filter(fk_user = user_id).order_by('-data')
         serializer = ExpenseSerializer(lists, many=True)
 
         return Response(serializer.data, status=status.HTTP_200_OK)
@@ -508,14 +504,14 @@ class ExpenseView(APIView):
             status=status.HTTP_200_OK
         )
     
-class ExpenseView(APIView):
+class IncomeView(APIView):
     # add permission to check if user is authenticated
     permission_classes = (IsAuthenticated, )
 
     # Take all expenses for user
     def get(self, request, user_id, *args, **kwargs):
         
-        lists = Income.objects.all().filter(fk_user = user_id).order_by('-create_date')
+        lists = Income.objects.all().filter(fk_user = user_id).order_by('-data')
         serializer = IncomeSerializer(lists, many=True)
 
         return Response(serializer.data, status=status.HTTP_200_OK)
