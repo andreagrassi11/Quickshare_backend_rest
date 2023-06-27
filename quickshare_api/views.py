@@ -223,9 +223,9 @@ class CalendarView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     # Take all image for user
-    def get(self, request, user_id, *args, **kwargs):
+    def get(self, request, user_id, date, *args, **kwargs):
         ''' List all the note for given requested user '''
-        notes = Calendar.objects.all().filter(allowed = user_id)
+        notes = Calendar.objects.all().filter(Q(fk_user = user_id) & Q(date = date)).order_by('-date')
         serializer = CalendarGetSerializer(notes, many=True)
 
         return Response(serializer.data, status=status.HTTP_200_OK)
@@ -520,7 +520,7 @@ class IncomeView(APIView):
     def post(self, request, user_id, *args, **kwargs):
         ''' Create the list '''
         data = {
-            'title': request.data.get('title'), 
+            'name': request.data.get('name'), 
             'category': request.data.get('category'), 
             'data': request.data.get('data'), 
             'amount': request.data.get('amount'), 
@@ -551,3 +551,27 @@ class IncomeView(APIView):
             {"res": "Object deleted!"},
             status=status.HTTP_200_OK
         )
+
+class ExpenseMonthView(APIView):
+    # add permission to check if user is authenticated
+    permission_classes = (IsAuthenticated, )
+
+    # Take all expenses for user
+    def get(self, request, user_id, month, *args, **kwargs):
+        
+        lists = Expenses.objects.all().filter(Q(fk_user = user_id) & Q(data__month = month)).order_by('-data')
+        serializer = ExpenseSerializer(lists, many=True)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+class IncomeMonthView(APIView):
+    # add permission to check if user is authenticated
+    permission_classes = (IsAuthenticated, )
+
+    # Take all expenses for user
+    def get(self, request, user_id, month, *args, **kwargs):
+        
+        lists = Income.objects.all().filter(Q(fk_user = user_id) & Q(data__month = month)).order_by('-data')
+        serializer = IncomeSerializer(lists, many=True)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)

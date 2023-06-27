@@ -21,9 +21,8 @@ class Calendar(models.Model):
     calendar_id = models.AutoField(primary_key=True)
     title = models.CharField(max_length = 100)
     description  = models.TextField()
-    start_event = models.DateTimeField()
-    finish_event = models.DateTimeField()
-    allowed = models.ManyToManyField(User)
+    date = models.DateField()
+    fk_user = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True)
     
 # List
 class List(models.Model):  
