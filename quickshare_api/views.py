@@ -154,7 +154,7 @@ class NoteView(APIView):
             'title': request.data.get('title'),  
             'body': request.data.get('body'),  
             'create_date': datetime.date.today(),
-            'allowed': list(user_id)
+            'allowed': [user_id]
         }
         
         serializer = NotePostSerializer(data = data)
@@ -283,7 +283,7 @@ class ListView(APIView):
         data = {
             'title': request.data.get('title'),  
             'create_date': datetime.date.today(),
-            'allowed': list(user_id)
+            'allowed': [user_id]
         }
         
         serializer = ListPostSerializer(data = data)
@@ -532,3 +532,66 @@ class IncomeMonthView(APIView):
         serializer = IncomeSerializer(lists, many=True)
 
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+# Chat
+class ChatView(APIView):
+    # add permission to check if user is authenticated
+    permission_classes = (IsAuthenticated, )
+
+    # Take all message for user
+    def get(self, request, user_id, *args, **kwargs):
+        
+        messages = Message.objects.all().filter(allowed = user_id).order_by('-date')
+        serializer = ChatSerializer(messages, many=True)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    # Insert a new message
+    def post(self, request, user_id, *args, **kwargs):
+        
+        data = {
+            'message': request.data.get('message'), 
+            'date': datetime.date.today(), 
+            'fk_user_creator': user_id, 
+            'allowed': list(user_id), 
+        }
+        
+        serializer = ChatSerializer(data = data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    # Modify people allowed
+    def put(self, request, user_id, *args, **kwargs):
+
+        message_instance = Message.objects.get(Q(message_id = request.data.get('message_id')) & Q(allowed = user_id))
+
+        if not message_instance:
+            return Response(
+                {"res": "Object with image id does not exists"}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # check for the type
+        new_user_id = request.data.get('new_user_id')
+        allowed = []
+
+        if isinstance(new_user_id, int):
+            allowed.append(new_user_id)
+        elif isinstance(new_user_id, str):
+            allowed = list(new_user_id)
+        elif isinstance(new_user_id, list):
+            allowed = new_user_id
+        
+        data = {
+            'allowed': allowed
+        }
+        
+        serializer = ChatPutSerializer(instance = message_instance, data = data, partial = True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

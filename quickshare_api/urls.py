@@ -28,4 +28,7 @@ urlpatterns = [
     path('income/<user_id>', IncomeView.as_view()),
     path('expense/month/<user_id>/<month>', ExpenseMonthView.as_view()),
     path('income/month/<user_id>/<month>', IncomeMonthView.as_view()),
+
+    # Chat API
+    path('message/<user_id>', ChatView.as_view()),
 ]

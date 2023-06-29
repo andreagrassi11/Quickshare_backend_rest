@@ -55,3 +55,11 @@ class Income(models.Model):
     amount = models.IntegerField()
     method = models.CharField(max_length = 100)
     fk_user = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True)
+
+# Chat
+class Message(models.Model):
+    message_id = models.AutoField(primary_key=True)
+    message = models.TextField()
+    date = models.DateField()
+    fk_user_creator = models.IntegerField()
+    allowed = models.ManyToManyField(User)

@@ -181,3 +181,42 @@ class CalendarSerializer(serializers.ModelSerializer):
     class Meta:
         model = Calendar
         fields = '__all__'
+
+# Chat serializer
+class ChatSerializer(serializers.ModelSerializer):
+
+    allowed = serializers.PrimaryKeyRelatedField(
+        many=True, 
+        queryset= User.objects.all()
+    )
+
+    class Meta:
+        model = Message
+        fields = '__all__'
+    
+    def create(self, validated_data):
+        related_models_data = validated_data.pop('allowed')
+        note = Message.objects.create(**validated_data)
+        note.allowed.set(related_models_data)
+        note.save()
+        return note
+    
+class ChatPutSerializer(serializers.ModelSerializer):
+
+    allowed = serializers.PrimaryKeyRelatedField(
+        many=True, 
+        queryset= User.objects.all()
+    )
+
+    class Meta:
+        model = Message
+        fields = ['allowed']
+    
+    def update(self, instance, validated_data):
+        user_id = validated_data.pop('allowed')
+        related_models = instance.allowed.all()
+        related_models = list(related_models)
+        related_models.extend(user_id)
+        instance.allowed.set(related_models)
+        instance.save()
+        return instance
