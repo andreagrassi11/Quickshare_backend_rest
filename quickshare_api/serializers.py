@@ -176,36 +176,7 @@ class IncomeSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 # Calendar serializer
-class CalendarPostSerializer(serializers.ModelSerializer):
-    
-    allowed = serializers.PrimaryKeyRelatedField(
-        many=True, 
-        queryset= User.objects.all()
-    )
-     
-    class Meta:
-        model = Calendar
-        fields = '__all__'
-
-    def create(self, validated_data):
-        related_models_data = validated_data.pop('allowed')
-        note = Calendar.objects.create(**validated_data)
-        note.allowed.set(related_models_data)
-        note.save()
-        return note
-
-    def update(self, instance, validated_data):
-        user_id = validated_data.pop('allowed')
-        related_models = instance.allowed.all()
-        related_models = list(related_models)
-        related_models.extend(user_id)
-        instance.allowed.set(related_models)
-        instance.title = validated_data.get('title')
-        instance.body = validated_data.get('body')
-        instance.save()
-        return instance
-    
-class CalendarGetSerializer(serializers.ModelSerializer):
+class CalendarSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Calendar

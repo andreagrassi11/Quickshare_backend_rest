@@ -224,75 +224,32 @@ class CalendarView(APIView):
 
     # Take all image for user
     def get(self, request, user_id, date, *args, **kwargs):
-        ''' List all the note for given requested user '''
+        
         notes = Calendar.objects.all().filter(Q(fk_user = user_id) & Q(date = date)).order_by('-date')
-        serializer = CalendarGetSerializer(notes, many=True)
+        serializer = CalendarSerializer(notes, many=True)
 
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     # Insert a new note
-    def post(self, request, user_id, *args, **kwargs):
-        ''' Create the note '''
-        # set Id for image
-        count_note = Calendar.objects.count()
-        count_note += 1
-
+    def post(self, request, user_id, date, *args, **kwargs):
+    
         data = {
-            'calendar_id': count_note,
             'title': request.data.get('title'),  
-            'description': request.data.get('description'),  
-            'start_event': request.data.get('start_event'),
-            'finish_event': request.data.get('finish_event'),
-            'allowed': list(user_id)
+            'date': date,  
+            'fk_user': user_id,
         }
         
-        serializer = CalendarPostSerializer(data = data)
+        serializer = CalendarSerializer(data = data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
-    # Modify note and people allowed
-    def put(self, request, user_id, *args, **kwargs):
-        ''' Updates the note '''
-        calendar_instance = Calendar.objects.get(Q(calendar_id = request.data.get('calendar_id')) & Q(allowed = user_id))
-
-        if not calendar_instance:
-            return Response(
-                {"res": "Object with image id does not exists"}, 
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        
-        # check for the type
-        new_user_id = request.data.get('new_user_id')
-        allowed = []
-
-        if isinstance(new_user_id, int):
-            allowed.append(new_user_id)
-        elif isinstance(new_user_id, str):
-            allowed = list(new_user_id)
-        elif isinstance(new_user_id, list):
-            allowed = new_user_id
-        
-        data = {
-            'note_id': request.data.get('note_id'),
-            'title': request.data.get('title'),
-            'body': request.data.get('body'),
-            'allowed': allowed
-        }
-        
-        serializer = NotePostSerializer(instance = calendar_instance, data = data, partial = True)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
     # Delete
-    def delete(self, request, user_id, *args, **kwargs):
-        ''' Deletes the note '''
-        calendar_to_delete = Calendar.objects.get(Q(calendar_id = request.data.get('calendar_id')) & Q(allowed = user_id))
+    def delete(self, request, user_id, date, *args, **kwargs):
+        
+        calendar_to_delete = Calendar.objects.get(Q(calendar_id = date) & Q(fk_user = user_id))
 
         if not calendar_to_delete:
             return Response(
