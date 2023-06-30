@@ -7,9 +7,13 @@ from django.contrib.auth import authenticate
 from django.contrib.auth.hashers import make_password
 import base64
 from drf_extra_fields.fields import Base64ImageField
+from .validators import validate_password
 
 # Register serializer
 class RegisterSerializer(serializers.ModelSerializer):
+
+    password = serializers.CharField(validators=[validate_password])
+
     class Meta:
         model = User
         fields = ('id','first_name', 'last_name','email','username','password')
