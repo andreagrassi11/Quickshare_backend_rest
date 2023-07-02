@@ -602,25 +602,64 @@ class SearchNotesView(APIView):
 
     def get(self, request, user_id, text, *args, **kwargs):
     
-        note_objects = list(Note.objects.filter(allowed=user_id).values())
+        note_objects = Note.objects.all().filter(allowed=user_id)
+
+        serializer = SearchNotesGetSerializer(note_objects, many=True)
+
+        note_objects_list = []
         note_objects_filtered = []
 
-        for index in range(len(note_objects)):
-            if ratio(note_objects[index]['title'], text) >= 0.8:
-                note_objects_filtered.append(note_objects[index])
-        
-        print(note_objects_filtered)
+        for key in serializer.data:
+            note_objects_list.append(dict(key))
 
-        serializer = SearchNotesGetSerializer(note_objects_filtered)
+        for index in range(len(note_objects_list)):
+            if ratio(note_objects_list[index]['title'], text) >= 0.6:
+                note_objects_filtered.append(note_objects_list[index])
 
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(note_objects_filtered, status=status.HTTP_200_OK)
     
-    
+
 class SearchListsView(APIView):
-     #list_objects = list(List.objects.filter(allowed=user_id).values())
-     pass
+     # add permission to check if user is authenticated
+    permission_classes = (IsAuthenticated, )
+
+    def get(self, request, user_id, text, *args, **kwargs):
+    
+        list_objects = List.objects.all().filter(allowed=user_id)
+
+        serializer = SearchListsGetSerializer(list_objects, many=True)
+
+        list_objects_list = []
+        list_objects_filtered = []
+
+        for key in serializer.data:
+            list_objects_list.append(dict(key))
+
+        for index in range(len(list_objects_list)):
+            if ratio(list_objects_list[index]['title'], text) >= 0.6:
+                list_objects_filtered.append(list_objects_list[index])
+
+        return Response(list_objects_filtered, status=status.HTTP_200_OK)
 
 
 class SearchEventsView(APIView):
-    #event_objects = list(Calendar.objects.filter(fk_user=user_id).values())
-    pass
+     # add permission to check if user is authenticated
+    permission_classes = (IsAuthenticated, )
+
+    def get(self, request, user_id, text, *args, **kwargs):
+    
+        event_objects = Calendar.objects.all().filter(fk_user=user_id)
+
+        serializer = SearchCalendarGetSerializer(event_objects, many=True)
+
+        event_objects_list = []
+        event_objects_filtered = []
+
+        for key in serializer.data:
+            event_objects_list.append(dict(key))
+
+        for index in range(len(event_objects_list)):
+            if ratio(event_objects_list[index]['title'], text) >= 0.6:
+                event_objects_filtered.append(event_objects_list[index])
+
+        return Response(event_objects_filtered, status=status.HTTP_200_OK)

@@ -33,7 +33,7 @@ urlpatterns = [
     path('message/<user_id>', ChatView.as_view()),
 
     # Search API
-    path('search/notes/<user_id>/<text>', SearchNotesView.as_view())
-    #path('search/lists/<user_id>/<text>', SearchListsView.as_view())
-    #path('search/events/<user_id>/<text>', SearchEventsView.as_view())
+    path('search/notes/<user_id>/<text>', SearchNotesView.as_view()),
+    path('search/lists/<user_id>/<text>', SearchListsView.as_view()),
+    path('search/events/<user_id>/<text>', SearchEventsView.as_view()),
 ]

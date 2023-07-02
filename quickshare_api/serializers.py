@@ -230,4 +230,17 @@ class SearchNotesGetSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Note
-        fields = ['note_id']
+        fields = '__all__'
+
+
+class SearchListsGetSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = List
+        fields = '__all__'
+
+class SearchCalendarGetSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Calendar
+        fields = '__all__'
