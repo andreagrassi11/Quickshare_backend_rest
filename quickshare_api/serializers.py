@@ -224,3 +224,10 @@ class ChatPutSerializer(serializers.ModelSerializer):
         instance.allowed.set(related_models)
         instance.save()
         return instance
+    
+
+class SearchNotesGetSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Note
+        fields = ['note_id']
