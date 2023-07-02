@@ -30,5 +30,5 @@ urlpatterns = [
     path('income/month/<user_id>/<month>', IncomeMonthView.as_view()),
 
     # Chat API
-    path('message/<user_id>', ChatView.as_view()),
+    path('message/<user_id>', ChatView.as_view(), name='chat'),
 ]
