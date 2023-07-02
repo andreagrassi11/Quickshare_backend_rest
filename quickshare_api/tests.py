@@ -23,7 +23,11 @@ class UserViewsTests(APITestCase):
 
         # Create new user
         url = reverse('token_obtain_pair')
-        user = User.objects.create_user(first_name= 'prova', last_name='utente', username='usuario', email='usuario@mail.com', password='contrasegna')
+        user = User.objects.create_user(first_name= 'prova', 
+                                        last_name='utente', 
+                                        username='usuario', 
+                                        email='usuario@mail.com', 
+                                        password='Contrasegna123!')
         user_id = user.id
 
         # Take JWT for new user
