@@ -10,7 +10,7 @@ from rest_framework import generics, permissions, mixins
 from django.contrib.auth.models import User
 from rest_framework.request import Request
 from rest_framework.permissions import AllowAny, IsAuthenticated
-
+from Levenshtein import ratio
 
 # User API
 class RegisterApi(generics.GenericAPIView):
@@ -595,3 +595,32 @@ class ChatView(APIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
         
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class SearchNotesView(APIView):
+    # add permission to check if user is authenticated
+    permission_classes = (IsAuthenticated, )
+
+    def get(self, request, user_id, text, *args, **kwargs):
+    
+        note_objects = list(Note.objects.filter(allowed=user_id).values())
+        note_objects_filtered = []
+
+        for index in range(len(note_objects)):
+            if ratio(note_objects[index]['title'], text) >= 0.8:
+                note_objects_filtered.append(note_objects[index])
+        
+        print(note_objects_filtered)
+
+        serializer = SearchNotesGetSerializer(note_objects_filtered)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    
+class SearchListsView(APIView):
+     #list_objects = list(List.objects.filter(allowed=user_id).values())
+     pass
+
+
+class SearchEventsView(APIView):
+    #event_objects = list(Calendar.objects.filter(fk_user=user_id).values())
+    pass
