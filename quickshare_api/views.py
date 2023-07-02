@@ -617,7 +617,6 @@ class SearchNotesView(APIView):
                 note_objects_filtered.append(note_objects_list[index])
 
         return Response(note_objects_filtered, status=status.HTTP_200_OK)
-    
 
 class SearchListsView(APIView):
      # add permission to check if user is authenticated
