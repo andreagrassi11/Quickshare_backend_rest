@@ -661,4 +661,8 @@ class SearchEventsView(APIView):
             if ratio(event_objects_list[index]['title'], text) >= 0.6:
                 event_objects_filtered.append(event_objects_list[index])
 
+<<<<<<< HEAD
         return Response(event_objects_filtered, status=status.HTTP_200_OK)
+=======
+        return Response(event_objects_filtered, status=status.HTTP_200_OK)
+>>>>>>> origin/main
